@@ -25,19 +25,22 @@ interface InnerProps {
   user: any;
   onLinkClick: () => void;
   onLogout: () => void;
+  hideLogo?: boolean;
 }
 
-function SidebarInner({ visibleItems, claimsLabel, pathname, user, onLinkClick, onLogout }: InnerProps) {
+function SidebarInner({ visibleItems, claimsLabel, pathname, user, onLinkClick, onLogout, hideLogo }: InnerProps) {
   return (
     <div className="flex flex-col h-full">
-      {/* Logo */}
-      <div className="px-4 py-5 border-b border-white/10 shrink-0">
-        <Link href="/dashboard" onClick={onLinkClick}>
-          <div className="bg-white rounded px-3 py-1.5 inline-flex">
-            <img src="/images/wps-logo.svg" alt="Würth Professional Solutions" className="h-7 w-auto" />
-          </div>
-        </Link>
-      </div>
+      {/* Logo — hidden in mobile drawer (drawer header already shows it) */}
+      {!hideLogo && (
+        <div className="px-4 py-5 border-b border-white/10 shrink-0">
+          <Link href="/dashboard" onClick={onLinkClick}>
+            <div className="bg-white rounded px-3 py-1.5 inline-flex">
+              <img src="/images/wps-logo.svg" alt="Würth Professional Solutions" className="h-7 w-auto" />
+            </div>
+          </Link>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
@@ -180,7 +183,7 @@ export function Sidebar() {
           </button>
         </div>
         <div className="flex-1 overflow-hidden flex flex-col">
-          <SidebarInner {...innerProps} onLinkClick={() => setMobileOpen(false)} />
+          <SidebarInner {...innerProps} hideLogo onLinkClick={() => setMobileOpen(false)} />
         </div>
       </aside>
     </>
