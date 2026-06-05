@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   title: 'WPS Expense Management System',
   description: 'Würth Professional Solutions - Expense Management System',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/images/icon-192.png',
+    apple: '/images/icon-192.png',
+  },
 };
 
 export const viewport: Viewport = {
