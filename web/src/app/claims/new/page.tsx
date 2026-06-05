@@ -476,11 +476,9 @@ export default function NewClaimPage() {
                     {item?.currency !== 'AED' && (
                       <div className="space-y-1.5">
                         <Label>AED Equivalent</Label>
-                        <div className="h-10 px-3 flex items-center bg-gray-50 border border-gray-200 rounded text-sm font-semibold text-gray-700">
-                          {formatCurrency(aedAmount)}
-                          <span className="ml-1 text-xs text-gray-400 font-normal">
-                            @ {exchangeRates?.[item.currency]?.toFixed(4)}
-                          </span>
+                        <div className="min-h-10 px-3 py-2 flex flex-col justify-center bg-gray-50 border border-gray-200 rounded overflow-hidden">
+                          <span className="text-sm font-semibold text-gray-700 truncate">{formatCurrency(aedAmount)}</span>
+                          <span className="text-xs text-gray-400 font-normal truncate">@ {exchangeRates?.[item.currency]?.toFixed(4)}</span>
                         </div>
                       </div>
                     )}
