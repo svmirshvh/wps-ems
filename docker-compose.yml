@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: wps
+      POSTGRES_PASSWORD: wps_local_dev
+      POSTGRES_DB: wps_ems
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U wps -d wps_ems']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - '3001:3001'
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://wps:wps_local_dev@postgres:5432/wps_ems
+      JWT_ACCESS_SECRET: dev-access-secret-change-in-production
+      JWT_REFRESH_SECRET: dev-refresh-secret-change-in-production
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+      FRONTEND_URL: http://localhost:3000
+      SUPABASE_URL: ${SUPABASE_URL:-}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-noreply@wps.ae}
+      FINANCE_EMAIL: ${FINANCE_EMAIL:-finance@wps.ae}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./api/src:/app/src
+    command: sh -c "npx prisma migrate deploy && npx ts-node prisma/seed.ts && npm run start:dev"
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3001/api/v1
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

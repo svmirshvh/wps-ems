@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WPS Expense Management System — Developer Brief Presentation</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red: #CC0000;
+    --black: #000000;
+    --dark-grey: #605D5C;
+    --green: #B9C900;
+    --cyan: #009EE0;
+    --white: #ffffff;
+    --light: #f5f5f5;
+  }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #1a1a1a;
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  .deck { width: 100vw; height: 100vh; position: relative; }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: none; flex-direction: column;
+    opacity: 0; transition: opacity 0.35s ease;
+  }
+  .slide.active { display: flex; opacity: 1; }
+
+  /* ── shared layout ── */
+  .slide-inner {
+    flex: 1; display: flex; flex-direction: column;
+    padding: 52px 64px 40px;
+    overflow: hidden;
+  }
+
+  .tag {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; opacity: 0.55; margin-bottom: 10px;
+  }
+  h1 { font-size: 48px; font-weight: 800; line-height: 1.1; }
+  h2 { font-size: 32px; font-weight: 700; line-height: 1.2; margin-bottom: 28px; }
+  h3 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+  p  { font-size: 15px; line-height: 1.65; }
+
+  .grid-2  { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid-3  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+  .card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px; padding: 20px 22px;
+  }
+  .card-light {
+    background: var(--white);
+    border: 1px solid #e0e0e0;
+    border-radius: 10px; padding: 20px 22px;
+  }
+
+  ul.bullets { list-style: none; }
+  ul.bullets li {
+    padding: 6px 0 6px 20px; font-size: 14px; line-height: 1.55;
+    position: relative;
+  }
+  ul.bullets li::before {
+    content: ''; position: absolute; left: 0; top: 14px;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--cyan);
+  }
+
+  .pill {
+    display: inline-block; padding: 3px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+  }
+  .pill-red   { background: rgba(204,0,0,.15); color: #ff6666; border: 1px solid rgba(204,0,0,.3); }
+  .pill-cyan  { background: rgba(0,158,224,.15); color: #4dd0ff; border: 1px solid rgba(0,158,224,.3); }
+  .pill-green { background: rgba(185,201,0,.15); color: #d4e800; border: 1px solid rgba(185,201,0,.3); }
+  .pill-grey  { background: rgba(255,255,255,.1); color: #ccc; border: 1px solid rgba(255,255,255,.2); }
+
+  /* ── slide-specific themes ── */
+
+  /* COVER */
+  .s-cover {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1e0000 50%, #0a0a0a 100%);
+    color: var(--white);
+  }
+  .s-cover .cover-content {
+    flex: 1; display: flex; flex-direction: column; justify-content: center;
+    padding: 0 64px;
+  }
+  .s-cover .logo-bar {
+    height: 64px; background: var(--red);
+    display: flex; align-items: center; padding: 0 64px; gap: 16px;
+    flex-shrink: 0;
+  }
+  .s-cover .logo-mark {
+    width: 36px; height: 36px; background: white; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; color: var(--red); font-size: 18px;
+  }
+  .s-cover .logo-text { color: white; font-weight: 700; font-size: 16px; }
+  .s-cover .logo-sub  { color: rgba(255,255,255,.7); font-size: 12px; }
+  .cover-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(204,0,0,.2); border: 1px solid rgba(204,0,0,.4);
+    color: #ff8080; border-radius: 20px; padding: 5px 16px;
+    font-size: 12px; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 28px; width: fit-content;
+  }
+  .cover-title { font-size: 54px; font-weight: 900; line-height: 1.05; margin-bottom: 16px; }
+  .cover-title span { color: var(--red); }
+  .cover-sub { font-size: 18px; color: rgba(255,255,255,.6); margin-bottom: 40px; }
+  .cover-meta {
+    display: flex; gap: 32px; border-top: 1px solid rgba(255,255,255,.1);
+    padding-top: 24px; color: rgba(255,255,255,.5); font-size: 13px;
+  }
+  .cover-meta strong { color: rgba(255,255,255,.9); display: block; margin-bottom: 2px; }
+  .red-line {
+    width: 60px; height: 4px; background: var(--red); border-radius: 2px;
+    margin-bottom: 24px;
+  }
+
+  /* DARK slides */
+  .s-dark { background: #111; color: var(--white); }
+  .s-dark .slide-inner { border-top: 4px solid var(--red); }
+
+  /* LIGHT slides */
+  .s-light { background: #f8f8f8; color: #111; }
+  .s-light .slide-inner { border-top: 4px solid var(--red); }
+  .s-light h2 { color: #111; }
+  .s-light .tag { color: var(--dark-grey); }
+
+  /* ACCENT slides */
+  .s-accent { background: var(--red); color: white; }
+  .s-accent h2 { color: white; }
+  .s-accent .tag { color: rgba(255,255,255,.7); }
+
+  /* flow diagram */
+  .flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin-top: 8px; }
+  .flow-step {
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
+    border-radius: 8px; padding: 10px 14px; text-align: center;
+    font-size: 12px; font-weight: 600; white-space: nowrap;
+  }
+  .flow-arrow {
+    color: var(--cyan); font-size: 18px; padding: 0 6px;
+  }
+  .flow-step.highlight { background: rgba(204,0,0,.25); border-color: rgba(204,0,0,.5); color: #ff8080; }
+
+  /* tech stack */
+  .tech-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+    border-radius: 10px; padding: 16px 10px; text-align: center; gap: 8px;
+  }
+  .tech-icon { font-size: 28px; }
+  .tech-name { font-size: 13px; font-weight: 700; }
+  .tech-role { font-size: 10px; color: rgba(255,255,255,.45); }
+
+  /* timeline */
+  .timeline { display: flex; flex-direction: column; gap: 14px; }
+  .tl-item { display: flex; gap: 16px; align-items: flex-start; }
+  .tl-dot {
+    width: 10px; height: 10px; border-radius: 50%; background: var(--cyan);
+    flex-shrink: 0; margin-top: 5px;
+  }
+  .tl-line { border-left: 2px solid rgba(0,158,224,.3); margin-left: 4px; flex: 1; }
+
+  /* number stats */
+  .stat { text-align: center; }
+  .stat-num { font-size: 44px; font-weight: 900; color: var(--cyan); line-height: 1; }
+  .stat-label { font-size: 12px; color: rgba(255,255,255,.5); margin-top: 4px; }
+
+  /* progress bar */
+  .progress-bar {
+    height: 6px; background: rgba(255,255,255,.1); border-radius: 3px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--red), var(--cyan));
+    border-radius: 3px; transition: width 0.5s ease;
+  }
+
+  /* ── nav ── */
+  .nav {
+    position: fixed; bottom: 24px; right: 32px;
+    display: flex; align-items: center; gap: 12px; z-index: 100;
+  }
+  .nav button {
+    width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,.2);
+    background: rgba(255,255,255,.08); color: white; cursor: pointer;
+    font-size: 16px; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .nav button:hover { background: var(--red); border-color: var(--red); }
+  .nav .slide-count { color: rgba(255,255,255,.4); font-size: 12px; font-weight: 600; }
+
+  .progress-nav {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 3px;
+    background: rgba(255,255,255,.1); z-index: 100;
+  }
+  .progress-nav-fill {
+    height: 100%; background: var(--red); transition: width 0.3s ease;
+  }
+
+  /* slide numbers top right */
+  .slide-num {
+    position: absolute; top: 20px; right: 32px;
+    font-size: 11px; color: rgba(255,255,255,.25); font-weight: 600;
+  }
+  .s-light .slide-num { color: rgba(0,0,0,.2); }
+
+  /* code block */
+  .code-block {
+    background: #0d0d0d; border: 1px solid #333; border-radius: 8px;
+    padding: 16px 20px; font-family: 'Courier New', monospace; font-size: 12px;
+    color: #a8d8a8; line-height: 1.7; overflow: hidden;
+  }
+  .code-comment { color: #666; }
+  .code-key { color: #569cd6; }
+  .code-val { color: #ce9178; }
+  .code-cmd { color: #b5cea8; }
+
+  /* check list */
+  .check-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.06);
+    font-size: 13px;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check { color: var(--green); font-size: 15px; flex-shrink: 0; }
+  .check-text { flex: 1; }
+  .check-sub { font-size: 11px; color: rgba(255,255,255,.4); margin-top: 2px; }
+
+  /* roadmap */
+  .roadmap-phase {
+    border-left: 3px solid var(--red); padding-left: 16px; margin-bottom: 18px;
+  }
+  .roadmap-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--red); margin-bottom: 6px;
+  }
+
+  /* deploy step */
+  .deploy-step {
+    display: flex; gap: 14px; align-items: flex-start; padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%; background: var(--red);
+    color: white; font-weight: 800; font-size: 13px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .step-body { flex: 1; }
+  .step-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .step-detail { font-size: 12px; color: rgba(255,255,255,.45); line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ══════════════════════ SLIDE 1 — COVER ══════════════════════ -->
+  <div class="slide s-cover active" id="s1">
+    <div class="logo-bar">
+      <div class="logo-mark">W</div>
+      <div>
+        <div class="logo-text">WÜRTH PROFESSIONAL SOLUTIONS</div>
+        <div class="logo-sub">Developer Brief Presentation</div>
+      </div>
+    </div>
+    <div class="cover-content">
+      <!-- <div class="cover-badge">⚡ Live Prototype</div> -->
+      <div class="red-line"></div>
+      <h1 class="cover-title">Online <span>Expense</span><br>Management System</h1>
+      <p class="cover-sub">Replacing the Excel-based claim process with a production-ready<br>web application built to WPS requirements</p>
+      <div class="cover-meta">
+        <div><strong>Stack</strong>Next.js 14 · NestJS · Supabase · Prisma</div>
+        <div><strong>Status</strong>Fully functional prototype</div>
+        <div><strong>Coverage</strong>100% of core requirements</div>
+        <div><strong>Timeline</strong>Single development sprint</div>
+      </div>
+    </div>
+    <div class="slide-num">1 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 2 — AGENDA ══════════════════════ -->
+  <div class="slide s-dark" id="s2">
+    <div class="slide-inner">
+      <div class="tag">Overview</div>
+      <h2>What We'll Cover Today</h2>
+      <div class="grid-2" style="gap:16px; flex:1">
+        <div>
+          <div class="check-item"><span class="check">①</span><div class="check-text"><div class="step-title">Requirements Interpretation</div><div class="check-sub">How I read the brief and identified the scope</div></div></div>
+          <div class="check-item"><span class="check">②</span><div class="check-text"><div class="step-title">Architecture & Technical Decisions</div><div class="check-sub">Why this stack, and how the modules fit together</div></div></div>
+          <div class="check-item"><span class="check">③</span><div class="check-text"><div class="step-title">User Journey & System Flow</div><div class="check-sub">Employee → Manager → Finance → Paid</div></div></div>
+          <div class="check-item"><span class="check">④</span><div class="check-text"><div class="step-title">Key Features Walkthrough</div><div class="check-sub">Live prototype demonstration</div></div></div>
+        </div>
+        <div>
+          <div class="check-item"><span class="check">⑤</span><div class="check-text"><div class="step-title">Security & Auditability</div><div class="check-sub">RBAC, domain restriction, FX rate freezing</div></div></div>
+          <div class="check-item"><span class="check">⑥</span><div class="check-text"><div class="step-title">Assumptions Made</div><div class="check-sub">Decisions taken in absence of full spec</div></div></div>
+          <div class="check-item"><span class="check">⑦</span><div class="check-text"><div class="step-title">Future Enhancements</div><div class="check-sub">Phase 2 roadmap if development continues</div></div></div>
+          <div class="check-item"><span class="check">⑧</span><div class="check-text"><div class="step-title">Deployment</div><div class="check-sub">Steps to take this live on a real domain</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">2 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 3 — REQUIREMENTS ══════════════════════ -->
+  <div class="slide s-dark" id="s3">
+    <div class="slide-inner">
+      <div class="tag">Requirements Interpretation</div>
+      <h2>What the Brief Asked For</h2>
+      <div class="grid-2">
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <h3 style="color:var(--cyan); margin-bottom:12px">Core Business Problems</h3>
+            <ul class="bullets">
+              <li>Excel forms lost, emailed inconsistently, no audit trail</li>
+              <li>Manual FX conversion prone to error; rate changes mid-process</li>
+              <li>No visibility for Finance until claim lands in inbox</li>
+              <li>Mobile employees photographing receipts — no structured upload</li>
+              <li>No enforcement of approval chain before payment</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3 style="color:var(--red); margin-bottom:8px">Non-Negotiables</h3>
+            <ul class="bullets">
+              <li>WPS corporate email domain login only</li>
+              <li>Multi-currency: USD · EUR · TRY · CNY → AED</li>
+              <li>JPEG / PNG / HEIC / PDF receipt uploads</li>
+              <li>Client-side image compression before upload</li>
+              <li>Mobile-first (iOS Safari + Android Chrome)</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <h3 style="color:var(--green); margin-bottom:12px">Scope I Identified</h3>
+            <ul class="bullets">
+              <li>4-role RBAC: Employee · Manager · Finance · Admin</li>
+              <li>Claim lifecycle: Draft → Submitted → Manager Approved → Finance Approved → Paid</li>
+              <li>PDF generation matching the Excel layout exactly (categories A–G)</li>
+              <li>Finance dashboard with KPIs, CSV & Excel export</li>
+              <li>Email notifications at every state change</li>
+              <li>Full audit log — who did what, when, at what FX rate</li>
+              <li>Claim immutability once submitted; Finance can reopen rejected</li>
+              <li>PWA manifest for add-to-home-screen on mobile</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">3 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 4 — ARCHITECTURE ══════════════════════ -->
+  <div class="slide s-dark" id="s4">
+    <div class="slide-inner">
+      <div class="tag">Technical Architecture</div>
+      <h2>System Architecture Overview</h2>
+      <div style="display:flex; gap:20px; flex:1">
+        <div style="flex:1">
+          <div class="card" style="margin-bottom:14px">
+            <div style="font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--cyan); margin-bottom:10px">Frontend — Port 3000</div>
+            <ul class="bullets">
+              <li><strong>Next.js 14</strong> App Router, React 18</li>
+              <li><strong>Zustand</strong> — auth state, persisted to localStorage</li>
+              <li><strong>TanStack Query</strong> — server state, cache, refetch</li>
+              <li><strong>React Hook Form + Zod</strong> — validation</li>
+              <li><strong>browser-image-compression</strong> — client-side before upload</li>
+              <li>Tailwind CSS + Radix UI primitives</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div style="font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--red); margin-bottom:10px">Backend — Port 3001</div>
+            <ul class="bullets">
+              <li><strong>NestJS</strong> — modular monolith, 11 modules</li>
+              <li><strong>Prisma ORM</strong> → Supabase PostgreSQL</li>
+              <li><strong>JWT</strong> access (15m) + UUID refresh (7d) in DB</li>
+              <li><strong>Puppeteer</strong> — server-side PDF from HTML template</li>
+              <li><strong>Resend</strong> — transactional email with PDF attachment</li>
+              <li>Supabase Storage — private buckets, signed URLs</li>
+            </ul>
+          </div>
+        </div>
+        <div style="width:220px; display:flex; flex-direction:column; gap:14px">
+          <div class="card" style="flex:1">
+            <div style="font-size:11px; font-weight:700; color:var(--green); margin-bottom:8px">11 API Modules</div>
+            <div style="display:flex; flex-wrap:wrap; gap:6px">
+              <span class="pill pill-grey">Auth</span>
+              <span class="pill pill-grey">Users</span>
+              <span class="pill pill-grey">Claims</span>
+              <span class="pill pill-grey">ClaimItems</span>
+              <span class="pill pill-grey">Attachments</span>
+              <span class="pill pill-grey">Approvals</span>
+              <span class="pill pill-grey">Finance</span>
+              <span class="pill pill-grey">PDF</span>
+              <span class="pill pill-grey">ExchangeRates</span>
+              <span class="pill pill-grey">Notifications</span>
+              <span class="pill pill-grey">Audit</span>
+            </div>
+          </div>
+          <div class="card" style="flex:1">
+            <div style="font-size:11px; font-weight:700; color:var(--cyan); margin-bottom:8px">Database — Supabase</div>
+            <ul class="bullets">
+              <li>8 tables, Prisma migrations</li>
+              <li>Soft deletes</li>
+              <li>Decimal precision for FX</li>
+              <li>Connection pooler (pgBouncer)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">4 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 5 — TECH STACK ══════════════════════ -->
+  <div class="slide s-dark" id="s5">
+    <div class="slide-inner">
+      <div class="tag">Technology Choices</div>
+      <h2>Why This Stack</h2>
+      <div class="grid-3" style="margin-bottom:20px">
+        <div class="tech-item">
+          <div class="tech-icon">⚛️</div>
+          <div class="tech-name">Next.js 14</div>
+          <div class="tech-role">Frontend Framework</div>
+          <div style="font-size:11px; color:rgba(255,255,255,.4); margin-top:6px; text-align:center">App Router, file-based routing, RSC-ready. PWA-compatible. Industry standard for React apps.</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">🏗️</div>
+          <div class="tech-name">NestJS</div>
+          <div class="tech-role">Backend Framework</div>
+          <div style="font-size:11px; color:rgba(255,255,255,.4); margin-top:6px; text-align:center">TypeScript-first, module-based. Matches enterprise scale. Built-in DI, guards, pipes, interceptors.</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">🐘</div>
+          <div class="tech-name">Supabase + Prisma</div>
+          <div class="tech-role">Database & ORM</div>
+          <div style="font-size:11px; color:rgba(255,255,255,.4); margin-top:6px; text-align:center">Managed PostgreSQL, built-in Storage, RLS. Prisma gives type-safe queries and migrations.</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">🔐</div>
+          <div class="tech-name">JWT Auth</div>
+          <div class="tech-role">Authentication</div>
+          <div style="font-size:11px; color:rgba(255,255,255,.4); margin-top:6px; text-align:center">Custom JWT (not NextAuth / Entra). Short-lived access tokens + UUID refresh tokens stored in DB for revocability.</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">📄</div>
+          <div class="tech-name">Puppeteer</div>
+          <div class="tech-role">PDF Generation</div>
+          <div style="font-size:11px; color:rgba(255,255,255,.4); margin-top:6px; text-align:center">Headless Chrome renders HTML → PDF. Faithfully replicates the Excel layout with categories A–G, subtotals, bank details.</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-icon">📧</div>
+          <div class="tech-name">Resend</div>
+          <div class="tech-role">Transactional Email</div>
+          <div style="font-size:11px; color:rgba(255,255,255,.4); margin-top:6px; text-align:center">Developer-friendly email API. Sends branded HTML emails with PDF attachment at every workflow step.</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap">
+        <span class="pill pill-cyan">Zustand — client state</span>
+        <span class="pill pill-cyan">TanStack Query — server cache</span>
+        <span class="pill pill-cyan">Zod — runtime validation</span>
+        <span class="pill pill-cyan">browser-image-compression — client resize</span>
+        <span class="pill pill-red">Tailwind CSS — utility styling</span>
+        <span class="pill pill-red">Radix UI — accessible primitives</span>
+        <span class="pill pill-green">TypeScript end-to-end</span>
+      </div>
+    </div>
+    <div class="slide-num">5 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 6 — USER JOURNEY ══════════════════════ -->
+  <div class="slide s-dark" id="s6">
+    <div class="slide-inner">
+      <div class="tag">User Journey & System Flow</div>
+      <h2>End-to-End Claim Lifecycle</h2>
+      <div style="background:rgba(255,255,255,.04); border-radius:12px; padding:20px 24px; margin-bottom:18px">
+        <div class="flow">
+          <div class="flow-step">Employee<br><span style="font-size:10px;color:rgba(255,255,255,.4)">Logs in (WPS domain)</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Creates Claim<br><span style="font-size:10px;color:rgba(255,255,255,.4)">DRAFT saved</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Adds Items<br><span style="font-size:10px;color:rgba(255,255,255,.4)">Multi-currency FX</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Attaches Receipts<br><span style="font-size:10px;color:rgba(255,255,255,.4)">Compressed + stored</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">SUBMITS<br><span style="font-size:10px">PDF + email sent</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Manager Reviews<br><span style="font-size:10px;color:rgba(255,255,255,.4)">SUBMITTED queue</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">MANAGER<br>APPROVED</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step">Finance Reviews<br><span style="font-size:10px;color:rgba(255,255,255,.4)">Finance queue</span></div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight">FINANCE<br>APPROVED</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step highlight" style="background:rgba(185,201,0,.2);border-color:rgba(185,201,0,.4);color:#d4e800">PAID ✓</div>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <h3 style="color:var(--cyan); font-size:14px">Employee Experience</h3>
+          <ul class="bullets" style="margin-top:8px">
+            <li>Mobile camera or file upload</li>
+            <li>Live AED conversion as they type</li>
+            <li>Autosave to localStorage every 60s</li>
+            <li>Reference number on submit confirmation</li>
+            <li>Email copy with PDF report</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--red); font-size:14px">Manager / Finance</h3>
+          <ul class="bullets" style="margin-top:8px">
+            <li>Dedicated approvals queue</li>
+            <li>One-click approve or reject with comment</li>
+            <li>Email notification on action</li>
+            <li>View attached receipts inline</li>
+            <li>Finance can reopen rejected claims</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--green); font-size:14px">Finance Dashboard</h3>
+          <ul class="bullets" style="margin-top:8px">
+            <li>KPIs: pending AED, approved, paid</li>
+            <li>6-month claims volume chart</li>
+            <li>Date-range + department filters</li>
+            <li>CSV and Excel (.xls) export</li>
+            <li>PDF download per claim</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">6 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 7 — FX & CURRENCY ══════════════════════ -->
+  <div class="slide s-dark" id="s7">
+    <div class="slide-inner">
+      <div class="tag">Core Business Logic</div>
+      <h2>Currency Conversion & FX Rate Handling</h2>
+      <div class="grid-2">
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <h3 style="color:var(--cyan)">Four Source Currencies → AED</h3>
+            <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap">
+              <div style="text-align:center; padding:10px 14px; background:rgba(255,255,255,.05); border-radius:8px">
+                <div style="font-weight:800; font-size:20px">USD</div>
+                <div style="font-size:11px; color:rgba(255,255,255,.4)">3.6725</div>
+              </div>
+              <div style="text-align:center; padding:10px 14px; background:rgba(255,255,255,.05); border-radius:8px">
+                <div style="font-weight:800; font-size:20px">EUR</div>
+                <div style="font-size:11px; color:rgba(255,255,255,.4)">4.31 (Excel formula)</div>
+              </div>
+              <div style="text-align:center; padding:10px 14px; background:rgba(255,255,255,.05); border-radius:8px">
+                <div style="font-weight:800; font-size:20px">TRY</div>
+                <div style="font-size:11px; color:rgba(255,255,255,.4)">0.1065</div>
+              </div>
+              <div style="text-align:center; padding:10px 14px; background:rgba(255,255,255,.05); border-radius:8px">
+                <div style="font-weight:800; font-size:20px">CNY</div>
+                <div style="font-size:11px; color:rgba(255,255,255,.4)">0.5045</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="color:var(--red)">Critical Design Decision: Rate Freezing</h3>
+            <p style="font-size:13px; margin-top:8px; line-height:1.6; color:rgba(255,255,255,.7)">
+              When a claim is <strong>submitted</strong>, the FX rate used for each line item is <strong>frozen and stored</strong> alongside the amount. If rates change the next day, the claim amounts never change. This matches the auditability requirement and mirrors the Excel behaviour.
+            </p>
+            <p style="font-size:12px; margin-top:10px; color:rgba(255,255,255,.45)">
+              Fields: <code>exchangeRateUsed</code>, <code>aedAmount</code>, <code>eurAmount</code> — all stored as Decimal on ClaimItem.
+            </p>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--green)">EUR = AED ÷ 4.31</h3>
+          <p style="font-size:13px; margin-top:8px; line-height:1.6; color:rgba(255,255,255,.7)">
+            The original Excel file uses a fixed EUR formula. This was preserved exactly — every AED total is divided by 4.31 to produce the EUR equivalent shown on the claim form and in the generated PDF.
+          </p>
+          <div style="margin-top:16px; background:rgba(0,0,0,.3); border-radius:8px; padding:14px 16px">
+            <div style="font-size:12px; color:rgba(255,255,255,.5); margin-bottom:6px">Live example</div>
+            <div style="font-size:14px">USD 500 × 3.6725 = <strong style="color:var(--cyan)">AED 1,836.25</strong></div>
+            <div style="font-size:14px">AED 1,836.25 ÷ 4.31 = <strong style="color:var(--green)">EUR 426.04</strong></div>
+          </div>
+          <div style="margin-top:14px">
+            <h3 style="font-size:13px; color:var(--cyan)">Real-time preview on form</h3>
+            <p style="font-size:12px; color:rgba(255,255,255,.5); margin-top:6px">As the employee types an amount and selects a currency, the AED equivalent updates immediately on screen before saving. The rate used is fetched from the DB, shown inline next to the amount.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">7 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 8 — SECURITY ══════════════════════ -->
+  <div class="slide s-dark" id="s8">
+    <div class="slide-inner">
+      <div class="tag">Security & Access Control</div>
+      <h2>Security Model & RBAC</h2>
+      <div class="grid-2">
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <h3 style="color:var(--red)">4 Roles with Strict Boundaries</h3>
+            <div style="margin-top:12px; display:flex; flex-direction:column; gap:10px">
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(255,255,255,.05); border-radius:6px">
+                <span style="font-weight:700">EMPLOYEE</span>
+                <span style="font-size:11px; color:rgba(255,255,255,.45)">Own claims only · Cannot approve</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(255,255,255,.05); border-radius:6px">
+                <span style="font-weight:700">MANAGER</span>
+                <span style="font-size:11px; color:rgba(255,255,255,.45)">Approve / reject SUBMITTED claims</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(255,255,255,.05); border-radius:6px">
+                <span style="font-weight:700">FINANCE</span>
+                <span style="font-size:11px; color:rgba(255,255,255,.45)">Final approval · Mark paid · Reopen · Export</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:rgba(255,255,255,.05); border-radius:6px">
+                <span style="font-weight:700">ADMIN</span>
+                <span style="font-size:11px; color:rgba(255,255,255,.45)">User management · Audit logs · All access</span>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="color:var(--cyan)">JWT Authentication</h3>
+            <ul class="bullets" style="margin-top:8px">
+              <li>Access token: 15-minute expiry (stateless)</li>
+              <li>Refresh token: UUID stored in DB, 7-day expiry</li>
+              <li>Refresh tokens are revocable (logout invalidates)</li>
+              <li>Auth state persisted to localStorage via Zustand</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <h3 style="color:var(--green)">Corporate Domain Restriction</h3>
+            <p style="font-size:13px; color:rgba(255,255,255,.6); margin-top:8px">Login is restricted to <code style="color:var(--cyan)">@wps.ae</code> and <code style="color:var(--cyan)">@wps.local</code> domains. Any other email is blocked at the backend with a clear error — configurable via env variable <code>ALLOWED_EMAIL_DOMAINS</code>.</p>
+          </div>
+          <div class="card" style="margin-bottom:14px">
+            <h3 style="color:var(--red)">Sensitive Data Handling</h3>
+            <ul class="bullets" style="margin-top:8px">
+              <li>IBAN, SWIFT, bank details come from user profile — never free-typed on each claim</li>
+              <li>Receipts stored in private Supabase bucket — accessible only via time-limited signed URLs (1 hour)</li>
+              <li>Passwords hashed with bcrypt (12 rounds)</li>
+              <li>All API routes guarded by JWT — no public endpoints except login</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3 style="color:var(--cyan)">Audit Trail</h3>
+            <p style="font-size:13px; color:rgba(255,255,255,.6); margin-top:8px">Every action — login, claim create/submit/approve/reject, receipt upload — is logged to an immutable AuditLog table with user ID, timestamp, IP, and metadata. Finance and Admin can view the full log.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">8 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 9 — MOBILE & PDF ══════════════════════ -->
+  <div class="slide s-dark" id="s9">
+    <div class="slide-inner">
+      <div class="tag">Key Features</div>
+      <h2>Mobile Experience & PDF Generation</h2>
+      <div class="grid-2">
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <h3 style="color:var(--cyan)">📱 Mobile-First Design</h3>
+            <ul class="bullets" style="margin-top:10px">
+              <li><strong>Responsive breakpoints</strong> — all pages have dedicated mobile layouts (card list vs. table, stacked forms)</li>
+              <li><strong>PWA manifest</strong> — add to home screen on iOS & Android without an App Store</li>
+              <li><strong>HEIC accepted</strong> — iPhone photos don't need conversion by the user</li>
+              <li><strong>Client-side compression</strong> — images compressed to ≤1.5MB, max 2000px before upload (saves data on mobile)</li>
+              <li><strong>Image lightbox</strong> — tap thumbnail to see full-size receipt preview</li>
+              <li><strong>Upload retry</strong> — 3 attempts with 1.5 s backoff for flaky connections</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3 style="color:var(--green)">🔒 Autosave & Draft Protection</h3>
+            <ul class="bullets" style="margin-top:10px">
+              <li>Form data backed up to localStorage every 60 seconds</li>
+              <li>Restored automatically on next visit if unsubmitted</li>
+              <li>Browser "leave page?" warning if form has content</li>
+              <li>Draft claims saved to server via "Save Draft" button</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--red)">📄 PDF — Excel Layout Replicated</h3>
+          <div style="margin-top:12px; background:#0d0d0d; border-radius:8px; padding:16px; font-size:12px; line-height:1.8; color:rgba(255,255,255,.6)">
+            <div style="color:var(--red); font-weight:700; font-size:13px; margin-bottom:8px">WPS Expense Claim Form</div>
+            <div style="border-bottom:1px solid #222; padding-bottom:8px; margin-bottom:8px">
+              <span style="color:#fff">John Smith</span> · Sales · WPS-2026-0009
+            </div>
+            <div style="font-size:10px; color:#555; margin-bottom:4px">A: TRAVEL EXPENSES</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; font-size:10px">
+              <span>Flight DXB→LHR</span><span style="text-align:right">USD 500</span><span style="text-align:right; color:var(--cyan)">AED 1,836</span>
+            </div>
+            <div style="font-size:10px; color:#555; margin:8px 0 4px">B: ACCOMMODATION</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; font-size:10px">
+              <span>Hotel Frankfurt</span><span style="text-align:right">EUR 200</span><span style="text-align:right; color:var(--cyan)">AED 862</span>
+            </div>
+            <div style="border-top:1px solid #333; margin-top:12px; padding-top:8px; display:flex; justify-content:space-between">
+              <span style="font-size:10px; color:#555">TOTAL</span>
+              <span style="color:var(--cyan); font-weight:700">AED 2,698 · EUR 626</span>
+            </div>
+            <div style="margin-top:10px; font-size:10px; color:#444">IBAN: AE070331234567890123456 · Emirates NBD</div>
+            <div style="margin-top:6px; font-size:10px; color:#555">Approval history included ↓</div>
+          </div>
+          <p style="font-size:12px; color:rgba(255,255,255,.4); margin-top:10px">Puppeteer renders this as ~260KB PDF, attached to the Finance notification email automatically on submission.</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">9 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 10 — DATABASE ══════════════════════ -->
+  <div class="slide s-dark" id="s10">
+    <div class="slide-inner">
+      <div class="tag">Data Model</div>
+      <h2>Database Schema — 8 Core Tables</h2>
+      <div style="display:flex; gap:16px; flex:1">
+        <div style="flex:1.2">
+          <div class="code-block">
+<span class="code-comment">// Claim — the primary entity</span>
+<span class="code-key">model</span> <span class="code-val">Claim</span> {
+  claimNumber   String    <span class="code-comment">// WPS-2026-0001</span>
+  status        ClaimStatus <span class="code-comment">// DRAFT → PAID</span>
+  totalAed      Decimal   <span class="code-comment">// recalculated on item change</span>
+  totalEur      Decimal   <span class="code-comment">// totalAed / 4.31</span>
+  submittedAt   DateTime?
+  items         ClaimItem[]
+  attachments   Attachment[]
+  approvals     Approval[]
+}
+
+<span class="code-comment">// ClaimItem — one row per expense line</span>
+<span class="code-key">model</span> <span class="code-val">ClaimItem</span> {
+  categoryCode      String   <span class="code-comment">// A, B, C ... G</span>
+  currency          String   <span class="code-comment">// USD/EUR/TRY/CNY/AED</span>
+  originalAmount    Decimal
+  exchangeRateUsed  Decimal  <span class="code-comment">// frozen at submit</span>
+  aedAmount         Decimal
+  eurAmount         Decimal
+}
+          </div>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:12px">
+          <div class="card">
+            <h3 style="font-size:13px; color:var(--cyan)">Status Enum</h3>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px">
+              <span class="pill pill-grey">DRAFT</span>
+              <span class="pill pill-cyan">SUBMITTED</span>
+              <span class="pill pill-green">MANAGER_APPROVED</span>
+              <span class="pill pill-green">FINANCE_APPROVED</span>
+              <span style="background:rgba(185,201,0,.2); color:#d4e800; padding:3px 12px; border-radius:20px; font-size:12px; font-weight:600">PAID</span>
+              <span class="pill pill-red">REJECTED</span>
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="font-size:13px; color:var(--red)">Key Design Decisions</h3>
+            <ul class="bullets" style="margin-top:8px">
+              <li>Soft deletes — <code>deletedAt</code> field, no hard deletes</li>
+              <li>Decimal type for all money — no floating point errors</li>
+              <li>Claim totals recalculated on every item add/remove/edit</li>
+              <li>RefreshToken table — server-side revocability</li>
+              <li>AuditLog — append-only, never updated</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3 style="font-size:13px; color:var(--green)">Claim Number Format</h3>
+            <div style="font-size:22px; font-weight:800; color:var(--cyan); margin:8px 0">WPS-2026-0001</div>
+            <div style="font-size:11px; color:rgba(255,255,255,.4)">Year + zero-padded sequential counter. Unique, human-readable reference for Finance.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">10 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 11 — FEATURES DELIVERED ══════════════════════ -->
+  <div class="slide s-dark" id="s11">
+    <div class="slide-inner">
+      <div class="tag">Delivery Summary</div>
+      <h2>What Was Built — Requirements vs Delivery</h2>
+      <div class="grid-2" style="gap:12px; flex:1">
+        <div>
+          <div class="check-item"><span class="check">✓</span><div class="check-text"><div class="step-title">Corporate domain login (@wps.ae / @wps.local)</div><div class="check-sub">Backend enforced, configurable via env var</div></div></div>
+          <div class="check-item"><span class="check">✓</span><div class="check-text"><div class="step-title">USD · EUR · TRY · CNY → AED conversion</div><div class="check-sub">Live preview on form, frozen at submission</div></div></div>
+          <div class="check-item"><span class="check">✓</span><div class="check-text"><div class="step-title">JPEG · PNG · HEIC · PDF receipt upload</div><div class="check-sub">Drag-drop + tap, camera access on mobile</div></div></div>
+          <div class="check-item"><span class="check">✓</span><div class="check-text"><div class="step-title">Client-side image compression</div><div class="check-sub">≤1.5 MB, ≤2000 px, browser-image-compression</div></div></div>
+          <div class="check-item"><span class="check">✓</span><div class="check-text"><div class="step-title">Mobile-first responsive (iOS + Android)</div><div class="check-sub">Separate mobile layouts on all pages</div></div></div>
+          <div class="check-item"><span class="check">✓</span><div class="check-text"><div class="step-title">4-role approval workflow</div><div class="check-sub">Employee → Manager → Finance → Paid</div></div></div>
+          <div class="check-item"><span class="check">✓</span><div class="check-text"><div class="step-title">PDF matching Excel layout (categories A–G)</div><div class="check-sub">Puppeteer, ~260KB, attached to email</div></div></div>
+        </div>
+        <div>
+          <div class="check-item"><span class="check">✓</span><div class="check-text"><div class="step-title">Finance dashboard with KPIs & chart</div><div class="check-sub">Pending AED, approved, paid, 6-month trend</div></div></div>
+          <div class="check-item"><span class="check">✓</span><div class="check-text"><div class="step-title">CSV + Excel export</div><div class="check-sub">Date-range filtered, SpreadsheetML format</div></div></div>
+          <div class="check-item"><span class="check">✓</span><div class="check-text"><div class="step-title">Email notifications with PDF attachment</div><div class="check-sub">Submit, approve, reject, finance-ready emails</div></div></div>
+          <div class="check-item"><span class="check">✓</span><div class="check-text"><div class="step-title">Receipt thumbnails + image lightbox</div><div class="check-sub">Full-size preview, Esc to close</div></div></div>
+          <div class="check-item"><span class="check">✓</span><div class="check-text"><div class="step-title">Autosave + draft protection</div><div class="check-sub">localStorage backup every 60s, beforeunload warning</div></div></div>
+          <div class="check-item"><span class="check">✓</span><div class="check-text"><div class="step-title">Full audit log</div><div class="check-sub">Every action: who, what, when, FX rate</div></div></div>
+          <div class="check-item"><span class="check">✓</span><div class="check-text"><div class="step-title">PWA manifest (Add to Home Screen)</div><div class="check-sub">App-like experience on mobile without App Store</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">11 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 12 — ASSUMPTIONS ══════════════════════ -->
+  <div class="slide s-dark" id="s12">
+    <div class="slide-inner">
+      <div class="tag">Assumptions & Considerations</div>
+      <h2>Decisions Made in Absence of Full Spec</h2>
+      <div class="grid-2">
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <h3 style="color:var(--cyan); margin-bottom:10px">Assumed — Would Confirm Before Production</h3>
+            <ul class="bullets">
+              <li><strong>EUR = AED ÷ 4.31</strong> — preserved exactly from the Excel formula; in production the rate would likely be a live feed</li>
+              <li><strong>wps.local domain</strong> used for prototype; production would be <code>@wps.ae</code></li>
+              <li><strong>Manager role optional</strong> — brief says "may be required"; included it as it's best practice</li>
+              <li><strong>Single approver per stage</strong> — could be multiple managers in production</li>
+              <li><strong>Event name required</strong> — inferred from the * on the Excel form</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3 style="color:var(--red); margin-bottom:10px">Out of Scope (Noted)</h3>
+            <ul class="bullets">
+              <li>HEIC → JPEG conversion — HEIC accepted and stored; full conversion needs a server-side library (sharp)</li>
+              <li>Receipt images embedded in PDF — PDF shows the claim form; receipts are separate attachments</li>
+              <li>SSO / Microsoft Entra — brief mentioned it, I used custom JWT as instructed</li>
+              <li>Localization (Arabic) — UI is English; i18n framework can be added</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <h3 style="color:var(--green); margin-bottom:10px">Technical Trade-offs Made</h3>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div><strong>Modular monolith over microservices</strong> — easier to deploy, debug, and scale for this team size. Services can be split later.</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot" style="background:var(--red)"></div>
+              <div><strong>Puppeteer over jsPDF/PDFKit</strong> — much easier to replicate complex table layouts from HTML; heavier but only runs on the server.</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div><strong>Supabase connection pooler (port 6543)</strong> — direct PostgreSQL (5432) blocked on some networks; pooler is more resilient.</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot" style="background:var(--green)"></div>
+              <div><strong>localStorage autosave over server-side drafts</strong> — items are added to the server on submit, not on save; localStorage bridges the gap for form recovery.</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div><strong>getValues() not watch() in effects</strong> — avoids subscribing to every keystroke for autosave intervals; significant performance difference on large forms.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">12 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 13 — FUTURE ══════════════════════ -->
+  <div class="slide s-dark" id="s13">
+    <div class="slide-inner">
+      <div class="tag">Future Enhancements</div>
+      <h2>Phase 2 Roadmap — If Development Continues</h2>
+      <div class="grid-2" style="gap:16px; flex:1">
+        <div>
+          <div class="roadmap-phase">
+            <div class="roadmap-label">Phase 2 — High Value, Low Effort</div>
+            <ul class="bullets">
+              <li><strong>Live FX rates</strong> via fixer.io or ECB API — auto-update daily, keep override ability</li>
+              <li><strong>HEIC → JPEG server-side</strong> using sharp — full iOS receipt compatibility</li>
+              <li><strong>PDF with embedded receipts</strong> — compile claim PDF + all receipt images into a single file</li>
+              <li><strong>Recurring expense templates</strong> — employees save common expense patterns</li>
+              <li><strong>Manager delegation</strong> — assign a substitute approver when on leave</li>
+            </ul>
+          </div>
+          <div class="roadmap-phase" style="border-color:var(--cyan)">
+            <div class="roadmap-label" style="color:var(--cyan)">Phase 3 — Enterprise Features</div>
+            <ul class="bullets">
+              <li><strong>Microsoft Entra SSO</strong> — integrate with WPS Active Directory</li>
+              <li><strong>Multi-approver workflows</strong> — parallel or sequential approval chains</li>
+              <li><strong>Expense policies</strong> — per-category spending limits with soft/hard warnings</li>
+              <li><strong>ERP integration</strong> — push approved claims to SAP / Oracle Financials</li>
+              <li><strong>Analytics</strong> — spend by department, category trends, budget vs. actual</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="roadmap-phase" style="border-color:var(--green)">
+            <div class="roadmap-label" style="color:var(--green)">Phase 4 — Mobile Native</div>
+            <ul class="bullets">
+              <li><strong>Service worker + offline mode</strong> — fill form offline, sync when connected</li>
+              <li><strong>Direct camera capture</strong> — <code>capture="environment"</code> on file input; bypass photo library</li>
+              <li><strong>Push notifications</strong> — browser push for approval status changes</li>
+              <li><strong>React Native app</strong> — if App Store presence required</li>
+            </ul>
+          </div>
+          <div class="card" style="margin-top:14px">
+            <h3 style="color:var(--red); margin-bottom:8px">Non-functional Improvements</h3>
+            <ul class="bullets">
+              <li>Rate limiting on auth endpoints (brute force protection)</li>
+              <li>Redis cache for exchange rates (reduce DB reads)</li>
+              <li>e2e test suite (Playwright) for CI/CD pipeline</li>
+              <li>Docker compose for local dev standardisation</li>
+              <li>HTTPS enforcement + security headers (Helmet)</li>
+              <li>Sentry error monitoring + Datadog APM</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">13 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 14 — DEPLOYMENT ══════════════════════ -->
+  <div class="slide s-dark" id="s14">
+    <div class="slide-inner">
+      <div class="tag">Deployment Guide</div>
+      <h2>Go Live in 6 Steps</h2>
+      <div class="grid-2" style="gap:20px; flex:1">
+        <div>
+          <div class="deploy-step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <div class="step-title">Deploy Backend to Railway</div>
+              <div class="step-detail">railway.app → New Project → Deploy from GitHub → select <code>wps-ems/api</code><br>Set env vars: DATABASE_URL, SUPABASE_*, JWT_*, RESEND_*, FRONTEND_URL<br>Railway auto-detects NestJS and assigns a public URL.</div>
+            </div>
+          </div>
+          <div class="deploy-step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <div class="step-title">Deploy Frontend to Vercel</div>
+              <div class="step-detail">vercel.com → New Project → Import GitHub → select <code>wps-ems/web</code><br>Set: <code>NEXT_PUBLIC_API_URL=https://your-api.railway.app/api/v1</code><br>Vercel handles build, CDN, and HTTPS automatically.</div>
+            </div>
+          </div>
+          <div class="deploy-step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <div class="step-title">Update CORS & Email Config</div>
+              <div class="step-detail">In Railway env: set <code>FRONTEND_URL=https://your-app.vercel.app</code><br>In Resend: verify your sending domain (e.g. <code>noreply@wps.ae</code>)<br>Update <code>RESEND_FROM_EMAIL</code> and <code>FINANCE_EMAIL</code></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="deploy-step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <div class="step-title">Run Database Migration</div>
+              <div class="step-detail">Supabase project is already running. From your terminal:<br><code style="color:var(--cyan)">cd api && npx prisma migrate deploy</code><br>This applies all migrations to the production Supabase DB.</div>
+            </div>
+          </div>
+          <div class="deploy-step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <div class="step-title">Seed Initial Users</div>
+              <div class="step-detail"><code style="color:var(--cyan)">npx prisma db seed</code><br>Creates the Finance, Admin accounts with secure passwords. Employees are added via Admin panel — no public registration.</div>
+            </div>
+          </div>
+          <div class="deploy-step">
+            <div class="step-num">6</div>
+            <div class="step-body">
+              <div class="step-title">Custom Domain (Optional)</div>
+              <div class="step-detail">In Vercel: Settings → Domains → add <code>expense.wps.ae</code><br>Point your DNS A record to Vercel's IP. HTTPS cert provisioned automatically.<br>Update <code>ALLOWED_EMAIL_DOMAINS=wps.ae</code> in Railway.</div>
+            </div>
+          </div>
+          <div style="margin-top:14px; padding:12px 14px; background:rgba(185,201,0,.1); border:1px solid rgba(185,201,0,.25); border-radius:8px">
+            <div style="font-size:12px; color:#d4e800; font-weight:600">⏱ Estimated time: ~20 minutes</div>
+            <div style="font-size:11px; color:rgba(255,255,255,.45); margin-top:4px">Both Railway and Vercel have free tiers sufficient for a pilot deployment.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">14 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 15 — LIVE DEMO ══════════════════════ -->
+  <div class="slide s-accent" id="s15">
+    <div class="slide-inner" style="justify-content:center; align-items:center; text-align:center">
+      <div style="font-size:64px; margin-bottom:20px">🚀</div>
+      <h2 style="font-size:40px; margin-bottom:12px">Live Prototype</h2>
+      <p style="font-size:18px; opacity:.85; margin-bottom:32px">Let me walk you through the running application</p>
+      <div style="display:flex; gap:20px; justify-content:center; flex-wrap:wrap; margin-bottom:32px">
+        <div style="background:rgba(0,0,0,.2); border-radius:10px; padding:14px 24px; text-align:left">
+          <div style="font-size:11px; opacity:.6; margin-bottom:4px">Frontend</div>
+          <div style="font-size:16px; font-weight:700">localhost:3000</div>
+        </div>
+        <div style="background:rgba(0,0,0,.2); border-radius:10px; padding:14px 24px; text-align:left">
+          <div style="font-size:11px; opacity:.6; margin-bottom:4px">API</div>
+          <div style="font-size:16px; font-weight:700">localhost:3001</div>
+        </div>
+        <div style="background:rgba(0,0,0,.2); border-radius:10px; padding:14px 24px; text-align:left">
+          <div style="font-size:11px; opacity:.6; margin-bottom:4px">Database</div>
+          <div style="font-size:16px; font-weight:700">Supabase (live)</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap">
+        <span style="background:rgba(0,0,0,.2); padding:6px 18px; border-radius:20px; font-size:13px">employee@wps.local / Employee@123</span>
+        <span style="background:rgba(0,0,0,.2); padding:6px 18px; border-radius:20px; font-size:13px">manager@wps.local / Manager@123</span>
+        <span style="background:rgba(0,0,0,.2); padding:6px 18px; border-radius:20px; font-size:13px">finance@wps.local / Finance@123</span>
+      </div>
+      <div style="margin-top:36px; font-size:14px; opacity:.6">Demo: Login → Create Claim → Submit → Approve → Finance Dashboard → PDF Download</div>
+    </div>
+    <div class="slide-num" style="color:rgba(255,255,255,.3)">15 / 16</div>
+  </div>
+
+  <!-- ══════════════════════ SLIDE 16 — THANK YOU ══════════════════════ -->
+  <div class="slide s-cover" id="s16">
+    <div class="logo-bar">
+      <div class="logo-mark">W</div>
+      <div>
+        <div class="logo-text">WÜRTH PROFESSIONAL SOLUTIONS</div>
+        <div class="logo-sub">Expense Management System — Developer Brief</div>
+      </div>
+    </div>
+    <div class="cover-content" style="align-items:center; text-align:center">
+      <div class="red-line" style="width:60px; margin:0 auto 24px"></div>
+      <h1 class="cover-title" style="font-size:44px">Thank You</h1>
+      <p class="cover-sub" style="margin-bottom:36px">Questions, clarifications, or a deeper code walkthrough?</p>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px; width:100%; max-width:700px">
+        <div style="background:rgba(255,255,255,.06); border-radius:10px; padding:16px; text-align:center">
+          <div style="font-size:28px; margin-bottom:8px">📋</div>
+          <div style="font-size:12px; color:rgba(255,255,255,.5)">Full Requirements<br>Coverage</div>
+        </div>
+        <div style="background:rgba(255,255,255,.06); border-radius:10px; padding:16px; text-align:center">
+          <div style="font-size:28px; margin-bottom:8px">⚡</div>
+          <div style="font-size:12px; color:rgba(255,255,255,.5)">Production-Ready<br>Architecture</div>
+        </div>
+        <div style="background:rgba(255,255,255,.06); border-radius:10px; padding:16px; text-align:center">
+          <div style="font-size:28px; margin-bottom:8px">📱</div>
+          <div style="font-size:12px; color:rgba(255,255,255,.5)">Mobile-First<br>PWA</div>
+        </div>
+        <div style="background:rgba(255,255,255,.06); border-radius:10px; padding:16px; text-align:center">
+          <div style="font-size:28px; margin-bottom:8px">🔒</div>
+          <div style="font-size:12px; color:rgba(255,255,255,.5)">Secure &<br>Auditable</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-num">16 / 16</div>
+  </div>
+
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <button onclick="prev()" title="Previous (←)">‹</button>
+  <span class="slide-count" id="counter">1 / 16</span>
+  <button onclick="next()" title="Next (→)">›</button>
+</div>
+
+<div class="progress-nav">
+  <div class="progress-nav-fill" id="prog"></div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let cur = 0;
+
+  function go(n) {
+    slides[cur].classList.remove('active');
+    cur = Math.max(0, Math.min(total - 1, n));
+    slides[cur].classList.add('active');
+    document.getElementById('counter').textContent = `${cur + 1} / ${total}`;
+    document.getElementById('prog').style.width = `${((cur + 1) / total) * 100}%`;
+  }
+
+  function next() { go(cur + 1); }
+  function prev() { go(cur - 1); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')  { e.preventDefault(); prev(); }
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End')  go(total - 1);
+  });
+
+  // Touch swipe
+  let tx = 0;
+  document.addEventListener('touchstart', e => tx = e.touches[0].clientX);
+  document.addEventListener('touchend',   e => {
+    const dx = tx - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 50) dx > 0 ? next() : prev();
+  });
+
+  go(0);
+</script>
+</body>
+</html>
