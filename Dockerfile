@@ -1,13 +1,21 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY api/package*.json ./
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 RUN npm ci
 COPY api/ .
 RUN npm run build
 
 FROM node:20-alpine
 WORKDIR /app
-RUN apk add --no-cache chromium
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 COPY api/package*.json ./
 RUN npm ci --omit=dev

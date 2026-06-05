@@ -85,15 +85,24 @@ export class ClaimsController {
   @Get(':id/pdf')
   @ApiOperation({ summary: 'Download claim as PDF' })
   async downloadPdf(@Param('id') id: string, @CurrentUser() user: any, @Res() res: Response) {
-    const claim = await this.claimsService.findOne(id, user.id, user.role);
-    const pdfBuffer = await this.pdfService.generateClaimPdf(claim as any);
+    try {
+      const claim = await this.claimsService.findOne(id, user.id, user.role);
+      const pdfBuffer = await this.pdfService.generateClaimPdf(claim as any);
 
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${claim.claimNumber}.pdf"`,
-      'Content-Length': pdfBuffer.length,
-    });
-    res.status(HttpStatus.OK).end(pdfBuffer);
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="${claim.claimNumber}.pdf"`,
+        'Content-Length': pdfBuffer.length,
+      });
+      res.status(HttpStatus.OK).end(pdfBuffer);
+    } catch (error) {
+      if (!res.headersSent) {
+        res.status(error.status ?? HttpStatus.INTERNAL_SERVER_ERROR).json({
+          statusCode: error.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+          message: error.message ?? 'Failed to generate PDF',
+        });
+      }
+    }
   }
 
   @Delete(':id')
