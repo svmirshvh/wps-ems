@@ -12,6 +12,9 @@ dist/
 .next/
 out/
 
+# Puppeteer Chrome cache
+api/.cache/
+
 # Logs
 *.log
 npm-debug.log*
