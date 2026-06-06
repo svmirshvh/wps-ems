@@ -484,7 +484,7 @@ export default function ClaimDetailPage() {
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <Row label="Account Holder" value={`${claim.user.firstName} ${claim.user.lastName}`} />
                 <Row label="Account No." value={claim.user.accountNo || '-'} />
                 <Row label="IBAN" value={claim.user.iban || '-'} />
@@ -686,7 +686,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-xs text-gray-400 font-medium">{label}</p>
-      <p className="text-sm text-gray-800 mt-0.5 font-medium">{value}</p>
+      <p className="text-sm text-gray-800 mt-0.5 font-medium break-all">{value}</p>
     </div>
   );
 }
